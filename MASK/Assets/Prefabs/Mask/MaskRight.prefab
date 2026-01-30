@@ -317,5 +317,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3066bc35976295944bcd70a571020372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maskName: MoveRightMask
+  maskName: Right
   moveDirection: {x: 1, y: 0}

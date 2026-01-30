@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // 1. 处理平滑的一格一格移动逻辑
+        // 1. 处理一格一格移动逻辑
         if (isMoving)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
@@ -63,14 +63,13 @@ public class PlayerController : MonoBehaviour
 
     private void TryMove(Vector2 direction)
     {
-        // A. 权限检查：是否拥有该方向的面具
         if (!currentMasks.Any(m => m.CanPerformAction(direction)))
         {
             Debug.Log($"缺失 {direction} 方向的面具，无法移动！");
             return;
         }
 
-        // B. 碰撞检查：使用射线探测 Wall 层
+
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, gridSize, wallLayer);
         if (hit.collider != null)
         {
@@ -83,11 +82,6 @@ public class PlayerController : MonoBehaviour
         isMoving = true;
     }
 
-    // --- 交互接口（供其他脚本调用） ---
-
-    /// <summary>
-    /// 被 MaskItem.cs 调用：拾取面具并加入背包
-    /// </summary>
     public void PickUpMask(MaskItem item)
     {
         // 规则：每个方向的面具同时只能持有一个
@@ -95,17 +89,13 @@ public class PlayerController : MonoBehaviour
         {
             currentMasks.Add(item.GetMaskPower());
             Debug.Log($"成功拾取: {item.maskName}");
-            Destroy(item.gameObject); // 拾取后销毁场景中的物体
+            Destroy(item.gameObject); 
         }
         else
         {
             Debug.Log("你已经拥有该方向的面具了！");
         }
     }
-
-    /// <summary>
-    /// 被 MaskSlotUI.cs 调用：从 UI 拖拽到祭坛时执行献祭
-    /// </summary>
     public void ExecuteSacrificeFromUI(int index, Altar altar)
     {
         if (index < currentMasks.Count)
@@ -118,10 +108,6 @@ public class PlayerController : MonoBehaviour
             CheckAllAltarsActivated();    // 检查是否全祭坛激活
         }
     }
-
-    /// <summary>
-    /// 供 UI 实时刷新显示的接口
-    /// </summary>
     public List<IMaskPower> GetOwnedMasks() => currentMasks;
 
     private void CheckAllAltarsActivated()
@@ -141,4 +127,5 @@ public class PlayerController : MonoBehaviour
         float y = Mathf.Round(transform.position.y / gridSize) * gridSize;
         transform.position = new Vector3(x, y, transform.position.z);
     }
+
 }
