@@ -10,12 +10,16 @@ public class EyeController : MonoBehaviour
     public EyeType eyeType;
 
     [Header("视觉组件引用")]
-    public Transform pupil;      // 眼珠
-    public GameObject eyelid;    // 眼睑
+    public Transform pupil;          // 眼珠子
+    public SpriteRenderer eyeMainSR; // 眼眶
+
+    [Header("素材替换")]
+    public Sprite openEyeSprite;     // 睁眼状态贴图
+    public Sprite closedEyeSprite;   // 闭眼状态贴图
 
     [Header("追踪配置")]
-    public float maxOffset = 0.25f; // 眼珠在眼眶内的最大偏移
-    public float followSpeed = 5f;  // 眼珠注视玩家的平滑速度
+    public float maxOffset = 0.25f;  // 眼珠在眼眶内的最大偏移
+    public float followSpeed = 5f;   // 眼珠注视玩家的平滑速度
 
     private PlayerController playerCtrl;
     private Transform playerTransform;
@@ -24,6 +28,8 @@ public class EyeController : MonoBehaviour
 
     void Start()
     {
+        if (eyeMainSR == null) eyeMainSR = GetComponent<SpriteRenderer>();
+
         // 初始化对应的方向向量
         InitDirection();
 
@@ -31,7 +37,7 @@ public class EyeController : MonoBehaviour
         playerCtrl = FindObjectOfType<PlayerController>();
         if (playerCtrl != null) playerTransform = playerCtrl.transform;
 
-        // 初始同步一次视觉状态
+     
         UpdateVisualStatus(true);
     }
 
@@ -41,6 +47,7 @@ public class EyeController : MonoBehaviour
         if (!isClosed && playerTransform != null && pupil != null)
         {
             Vector3 lookDir = (playerTransform.position - transform.position).normalized;
+            // 限制眼珠不超出眼眶范围
             pupil.localPosition = Vector3.Lerp(pupil.localPosition, lookDir * maxOffset, Time.deltaTime * followSpeed);
         }
 
@@ -79,12 +86,23 @@ public class EyeController : MonoBehaviour
     private void SetEyeState(bool shouldClose)
     {
         isClosed = shouldClose;
-        if (eyelid != null) eyelid.SetActive(shouldClose);
-        if (pupil != null) pupil.gameObject.SetActive(!shouldClose);
+
+        // 1. 处理眼珠：闭眼时隐藏眼珠，睁眼时显示
+        if (pupil != null)
+        {
+            pupil.gameObject.SetActive(!shouldClose);
+        }
+
+        // 2. 处理眼眶贴图替换
+        if (eyeMainSR != null)
+        {
+            eyeMainSR.sprite = shouldClose ? closedEyeSprite : openEyeSprite;
+        }
 
         // 调试
-        Debug.Log($"[{gameObject.name}] 对应方向 {targetDirection}，状态：{(shouldClose ? "闭合 (可通行)" : "睁开 (已封锁)")}");
+        Debug.Log($"[{gameObject.name}] 状态切换：{(shouldClose ? "闭合 (检测到面具)" : "睁开 (阻挡移动)")}");
     }
+
     public bool IsClosedState()
     {
         return isClosed;
