@@ -9,23 +9,26 @@ public class PlayerController : MonoBehaviour
     public float gridSize = 1.0f;
     public float moveSpeed = 10f;
 
-    [Header("碰撞与交互设置")]
+    [Header("引用设置")]
     public LayerMask wallLayer;
     public Door gameDoor;
 
     private List<IMaskPower> currentMasks = new List<IMaskPower>();
     private Vector3 targetPos;
     private bool isMoving = false;
+    private Stack<GameStateSnapshot> undoStack = new Stack<GameStateSnapshot>();
 
     void Start()
     {
         SnapToGrid();
         targetPos = transform.position;
+        SaveState();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().name);// 重置按键
+        if (Input.GetKeyDown(KeyCode.Z) && !isMoving) Undo(); // 撤销按键
 
         if (isMoving)
         {
@@ -38,92 +41,62 @@ public class PlayerController : MonoBehaviour
             }
             return;
         }
-
         HandleMovementInput();
     }
 
-    private void HandleMovementInput()
+    
+    public void SaveState()
     {
-        Vector2 inputDir = Vector2.zero;
-        if (Input.GetKeyDown(KeyCode.W)) inputDir = Vector2.up;
-        else if (Input.GetKeyDown(KeyCode.S)) inputDir = Vector2.down;
-        else if (Input.GetKeyDown(KeyCode.A)) inputDir = Vector2.left;
-        else if (Input.GetKeyDown(KeyCode.D)) inputDir = Vector2.right;
+        Altar[] allAltars = FindObjectsOfType<Altar>();
+       
+        int[] aStates = allAltars.Select(a => a.GetState()).ToArray();
 
-        if (inputDir != Vector2.zero) TryMove(inputDir);
+        MaskItem[] allItems = FindObjectsOfType<MaskItem>(true);
+        bool[] mStates = allItems.Select(m => m.gameObject.activeSelf).ToArray();
+
+        undoStack.Push(new GameStateSnapshot(transform.position, currentMasks, aStates, mStates));
     }
 
-    private void TryMove(Vector2 direction)
+    private void Undo()
     {
-        if (!currentMasks.Any(m => m.CanPerformAction(direction))) return;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, gridSize, wallLayer);
-        if (hit.collider != null) return;
+        if (undoStack.Count <= 1) return;
 
-        targetPos = transform.position + (Vector3)(direction * gridSize);
-        isMoving = true;
+        undoStack.Pop();
+        GameStateSnapshot prev = undoStack.Peek();
+
+        // 1. 恢复位置
+        transform.position = prev.playerPosition;
+        targetPos = transform.position;
+
+        // 2. 恢复面具列表 (UI 会在下一帧 Update 自动根据此列表刷新)
+        currentMasks = new List<IMaskPower>(prev.ownedMasks);
+
+        // 3. 恢复场景祭坛状态
+        Altar[] altars = FindObjectsOfType<Altar>();
+        for (int i = 0; i < altars.Length; i++) altars[i].SetStateFromUndo(prev.altarStates[i]);
+
+        // 4. 恢复场景面具可见性
+        MaskItem[] items = FindObjectsOfType<MaskItem>(true);
+        for (int i = 0; i < items.Length; i++) items[i].gameObject.SetActive(prev.maskActiveStates[i]);
+
+        Debug.Log("Undo Success!");
     }
 
- 
     public void PickUpMask(MaskItem item)
     {
-        // 检查是否已经拥有该方向的面具，如果没有则添加
         if (!currentMasks.Any(m => m.Direction == item.moveDirection))
         {
+            SaveState();
             currentMasks.Add(item.GetMaskPower());
-
- 
-            Destroy(item.gameObject);
-
-            Debug.Log($"[数据层] 成功添加面具: {item.maskName}, 当前持有数: {currentMasks.Count}");
+            item.gameObject.SetActive(false); 
         }
     }
-
-    public void AddMaskDirectly(IMaskPower newMask)
-    {
-        currentMasks.Add(newMask);
-    }
-
-    public void ExecuteSacrificeFromUI(int index, Altar altar)
-    {
-        if (index < currentMasks.Count)
-        {
-            IMaskPower maskToSacrifice = currentMasks[index];
-            if (altar.TrySacrifice(maskToSacrifice, this))
-            {
-                currentMasks.RemoveAt(index);
-                CheckAllAltarsActivated();
-            }
-        }
-    }
-
-    private void CheckAllAltarsActivated()
-    {
-        var targetAltars = FindObjectsOfType<Altar>().Where(a => a.countsTowardsProgress);
-        if (targetAltars.All(a => a.isActivated))
-        {
-            if (gameDoor != null) gameDoor.OpenDoor();
-        }
-    }
-
+    public void AddMaskDirectly(IMaskPower m) => currentMasks.Add(m);
     public List<IMaskPower> GetOwnedMasks() => currentMasks;
-
-    private void CheckForDoorEntrance()
-    {
-        Door[] allDoors = FindObjectsOfType<Door>();
-        foreach (Door door in allDoors)
-        {
-            if (door.isOpen && Vector2.Distance(transform.position, door.transform.position) < gridSize * 0.5f)
-            {
-                door.EnterDoor();
-                return;
-            }
-        }
-    }
-
-    private void SnapToGrid()
-    {
-        float x = Mathf.Round(transform.position.x / gridSize) * gridSize;
-        float y = Mathf.Round(transform.position.y / gridSize) * gridSize;
-        transform.position = new Vector3(x, y, transform.position.z);
-    }
+    private void HandleMovementInput() { Vector2 dir = Vector2.zero; if (Input.GetKeyDown(KeyCode.W)) dir = Vector2.up; else if (Input.GetKeyDown(KeyCode.S)) dir = Vector2.down; else if (Input.GetKeyDown(KeyCode.A)) dir = Vector2.left; else if (Input.GetKeyDown(KeyCode.D)) dir = Vector2.right; if (dir != Vector2.zero) TryMove(dir); }
+    private void TryMove(Vector2 d) { if (!currentMasks.Any(m => m.CanPerformAction(d))) return; RaycastHit2D hit = Physics2D.Raycast(transform.position, d, gridSize, wallLayer); if (hit.collider != null) return; SaveState(); targetPos = transform.position + (Vector3)(d * gridSize); isMoving = true; }
+    private void SnapToGrid() { transform.position = new Vector3(Mathf.Round(transform.position.x / gridSize) * gridSize, Mathf.Round(transform.position.y / gridSize) * gridSize, transform.position.z); }
+    private void CheckForDoorEntrance() { Door[] doors = FindObjectsOfType<Door>(); foreach (var d in doors) { if (d.isOpen && Vector2.Distance(transform.position, d.transform.position) < gridSize * 0.5f) d.EnterDoor(); } }
+    private void CheckAllAltarsActivated() { if (FindObjectsOfType<Altar>().Where(a => a.countsTowardsProgress).All(a => a.isActivated)) gameDoor?.OpenDoor(); }
+    public void ExecuteSacrificeFromUI(int index, Altar altar) { if (index < currentMasks.Count) { SaveState(); if (altar.TrySacrifice(currentMasks[index], this)) { currentMasks.RemoveAt(index); CheckAllAltarsActivated(); } else { undoStack.Pop(); } } }
 }
