@@ -25,11 +25,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // R键快捷重置关卡
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
+        if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
         if (isMoving)
         {
@@ -38,8 +34,6 @@ public class PlayerController : MonoBehaviour
             {
                 transform.position = targetPos;
                 isMoving = false;
-
-                // 移动停止后检测是否进入了“门”
                 CheckForDoorEntrance();
             }
             return;
@@ -62,67 +56,69 @@ public class PlayerController : MonoBehaviour
     private void TryMove(Vector2 direction)
     {
         if (!currentMasks.Any(m => m.CanPerformAction(direction))) return;
-
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, gridSize, wallLayer);
         if (hit.collider != null) return;
 
         targetPos = transform.position + (Vector3)(direction * gridSize);
         isMoving = true;
     }
-    private void CheckForDoorEntrance()
-    {
-        // 寻找场景中所有的 Door 脚本（包括挂在祭坛上的）
-        Door[] allDoors = FindObjectsOfType<Door>();
-        foreach (Door door in allDoors)
-        {
-            if (door.isOpen)
-            {
-                // 只要玩家与门中心的距离小于 0.5 个格子，就判定为进入
-                float dist = Vector2.Distance(transform.position, door.transform.position);
-                if (dist < gridSize * 0.5f)
-                {
-                    door.EnterDoor();
-                    return;
-                }
-            }
-        }
-    }
 
+    // 核心修复点：拾取面具逻辑
     public void PickUpMask(MaskItem item)
     {
+        // 检查是否已经拥有该方向的面具，如果没有则添加
         if (!currentMasks.Any(m => m.Direction == item.moveDirection))
         {
             currentMasks.Add(item.GetMaskPower());
+
+            // 确保物体被立即销毁，防止重复拾取
             Destroy(item.gameObject);
+
+            Debug.Log($"[数据层] 成功添加面具: {item.maskName}, 当前持有数: {currentMasks.Count}");
         }
+    }
+
+    public void AddMaskDirectly(IMaskPower newMask)
+    {
+        currentMasks.Add(newMask);
     }
 
     public void ExecuteSacrificeFromUI(int index, Altar altar)
     {
         if (index < currentMasks.Count)
         {
-            currentMasks.RemoveAt(index);
-            altar.Activate();
-            CheckAllAltarsActivated();
+            IMaskPower maskToSacrifice = currentMasks[index];
+            if (altar.TrySacrifice(maskToSacrifice, this))
+            {
+                currentMasks.RemoveAt(index);
+                CheckAllAltarsActivated();
+            }
         }
     }
 
     private void CheckAllAltarsActivated()
     {
-        Altar[] altars = FindObjectsOfType<Altar>();
-        if (altars.Length > 0 && altars.All(a => a.isActivated))
+        var targetAltars = FindObjectsOfType<Altar>().Where(a => a.countsTowardsProgress);
+        if (targetAltars.All(a => a.isActivated))
         {
             if (gameDoor != null) gameDoor.OpenDoor();
-
-            foreach (var altar in altars)
-            {
-                Door d = altar.GetComponent<Door>();
-                if (d != null) d.OpenDoor();
-            }
         }
     }
 
     public List<IMaskPower> GetOwnedMasks() => currentMasks;
+
+    private void CheckForDoorEntrance()
+    {
+        Door[] allDoors = FindObjectsOfType<Door>();
+        foreach (Door door in allDoors)
+        {
+            if (door.isOpen && Vector2.Distance(transform.position, door.transform.position) < gridSize * 0.5f)
+            {
+                door.EnterDoor();
+                return;
+            }
+        }
+    }
 
     private void SnapToGrid()
     {
