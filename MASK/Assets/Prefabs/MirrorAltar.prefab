@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2413302053789899478}
   - component: {fileID: 6693945057320019420}
   - component: {fileID: 729706689075777667}
-  - component: {fileID: 324686379031996896}
   m_Layer: 6
   m_Name: MirrorAltar
   m_TagString: Untagged
@@ -101,6 +100,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isActivated: 0
   countsTowardsProgress: 1
+  activatedSprite: {fileID: 0}
+  activatedColor: {r: 0, g: 1, b: 0, a: 1}
+  upIcon: {fileID: 21300000, guid: 6cd0f538949cceb4a98e022c521172a8, type: 3}
+  downIcon: {fileID: 21300000, guid: 6855ee5e173599b498606735af0e3a36, type: 3}
+  leftIcon: {fileID: 21300000, guid: bf340f9f5727ca94289c6eba3fc2e52d, type: 3}
+  rightIcon: {fileID: 21300000, guid: 14d1d777327274641b292040b5864370, type: 3}
 --- !u!61 &729706689075777667
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -146,17 +151,3 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.8828125, y: 1}
   m_EdgeRadius: 0
---- !u!114 &324686379031996896
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3164706501085864669}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98903ae46055248499818dcb66c646f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isActivated: 0
-  countsTowardsProgress: 0
