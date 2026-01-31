@@ -98,10 +98,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d9141b1a0504443a3cb0e546871dc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  eyeType: 2
   pupil: {fileID: 417290264824773135}
   eyelid: {fileID: 0}
-  watchDirection: {x: 1, y: 0}
   maxOffset: 0.3
   followSpeed: 5
 --- !u!1 &8158524778026604328
