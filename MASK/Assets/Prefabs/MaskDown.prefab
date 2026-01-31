@@ -146,6 +146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maskName: Down
   moveDirection: {x: 0, y: -1}
+  maskIcon: {fileID: 21300000, guid: 7a119352acf7fa4409dcf7ec834a5ab7, type: 3}
 --- !u!1 &7835801346892671628
 GameObject:
   m_ObjectHideFlags: 0
