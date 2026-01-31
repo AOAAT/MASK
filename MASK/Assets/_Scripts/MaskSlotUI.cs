@@ -26,23 +26,19 @@ public class MaskSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     void Update()
     {
         if (player == null) return;
-
         var masks = player.GetOwnedMasks();
 
         if (slotIndex < masks.Count)
         {
             IMaskPower mask = masks[slotIndex];
-
-            // 1. 优先显示图标
             if (mask.Icon != null)
             {
                 slotImage.sprite = mask.Icon;
-                slotImage.color = Color.white; // 恢复不透明度
-                slotText.text = ""; // 有图标时可以隐藏文字，或根据需求保留
+                slotImage.color = Color.white;
+                slotText.text = "";
             }
             else
             {
-                // 2. 兜底逻辑：无图标时显示文字和方向识别色
                 slotImage.sprite = null;
                 slotText.text = mask.PowerName;
                 SetDirectionColor(mask.Direction);
@@ -50,7 +46,6 @@ public class MaskSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         }
         else
         {
-            // 3. 空槽位状态
             slotImage.sprite = null;
             slotText.text = "";
             slotImage.color = new Color(1, 1, 1, 0.2f);
@@ -65,7 +60,6 @@ public class MaskSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         else if (dir == Vector2.left) slotImage.color = new Color(0.4f, 1, 0.4f);
     }
 
-    // 拖拽逻辑保持不变...
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (slotIndex >= player.GetOwnedMasks().Count) return;
@@ -79,7 +73,6 @@ public class MaskSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     {
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
 

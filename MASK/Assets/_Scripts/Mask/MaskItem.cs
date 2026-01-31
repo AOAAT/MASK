@@ -4,7 +4,7 @@ public class MaskItem : MonoBehaviour
 {
     public string maskName;
     public Vector2 moveDirection;
-    public Sprite maskIcon; // 新增：在编辑器中拖入该面具对应的图片
+    public Sprite maskIcon; // 在 Inspector 中拖入图标
 
     private void OnMouseDown()
     {
@@ -21,7 +21,6 @@ public class MaskItem : MonoBehaviour
 
     public IMaskPower GetMaskPower()
     {
-        // 将图片传递给能力实例
         return new MoveDirectionMask(maskName, moveDirection, maskIcon);
     }
 }
