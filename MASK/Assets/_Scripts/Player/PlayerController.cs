@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
         isMoving = true;
     }
 
-    // 核心修复点：拾取面具逻辑
+ 
     public void PickUpMask(MaskItem item)
     {
         // 检查是否已经拥有该方向的面具，如果没有则添加
@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
         {
             currentMasks.Add(item.GetMaskPower());
 
-            // 确保物体被立即销毁，防止重复拾取
+ 
             Destroy(item.gameObject);
 
             Debug.Log($"[数据层] 成功添加面具: {item.maskName}, 当前持有数: {currentMasks.Count}");
