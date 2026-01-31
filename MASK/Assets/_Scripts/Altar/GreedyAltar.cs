@@ -6,34 +6,58 @@ public class GreedyAltar : Altar
     public int requiredCount = 2;
     private int currentCount = 0;
 
-    [Tooltip("投入第一个面具后的中间状态图标（可选）")]
+    [Header("贪婪视觉")]
+    public Color intermediateColor = Color.yellow; 
     public Sprite intermediateSprite;
+
+    public override int GetState() => currentCount;
+
+    public override void SetStateFromUndo(int state)
+    {
+        currentCount = state;
+        isActivated = (currentCount >= requiredCount);
+
+        if (sr != null)
+        {
+            if (isActivated)
+            {
+                sr.sprite = activatedSprite;
+                sr.color = activatedColor;
+            }
+            else if (currentCount > 0)
+            {
+             
+                if (intermediateSprite != null) sr.sprite = intermediateSprite;
+                sr.color = intermediateColor;
+            }
+            else
+            {
+                
+                sr.sprite = originalSprite;
+                sr.color = originalColor;
+            }
+        }
+    }
 
     public override bool TrySacrifice(IMaskPower mask, PlayerController player)
     {
         if (isActivated) return false;
-
         currentCount++;
 
         if (currentCount >= requiredCount)
         {
-            Activate(); // 调用基类 Activate，切换到最终的 activatedSprite
+            Activate();
         }
         else
         {
-            // 切换到中间状态图标（如果有的话）
-            if (sr != null && intermediateSprite != null)
+            
+            if (sr != null)
             {
-                sr.sprite = intermediateSprite;
+                sr.color = intermediateColor;
+                if (intermediateSprite != null) sr.sprite = intermediateSprite;
             }
-            else if (sr != null)
-            {
-                // 如果没有中间素材，就用半透明绿色提示进度
-                sr.color = new Color(0.5f, 1f, 0.5f, 0.8f);
-            }
-            Debug.Log($"贪婪祭坛已接收面具 ({currentCount}/{requiredCount})");
+            Debug.Log($"贪婪祭坛吃到第 {currentCount} 个面具，产生色变！");
         }
-
         return true;
     }
 }

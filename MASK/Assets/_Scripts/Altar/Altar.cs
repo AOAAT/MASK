@@ -7,22 +7,38 @@ public class Altar : MonoBehaviour
     public bool countsTowardsProgress = true;
 
     [Header("视觉配置")]
-    [Tooltip("激活后的新图标")]
     public Sprite activatedSprite;
+    public Color activatedColor = Color.green; // 激活后的目标颜色
 
     protected SpriteRenderer sr;
-    private Sprite originalSprite; // 记录初始图标
+    protected Sprite originalSprite;
+    protected Color originalColor; 
 
     protected virtual void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        if (sr != null) originalSprite = sr.sprite;
+        if (sr != null)
+        {
+            originalSprite = sr.sprite;
+            originalColor = sr.color; 
+        }
+    }
+
+    public virtual int GetState() => isActivated ? 1 : 0;
+
+    public virtual void SetStateFromUndo(int state)
+    {
+        isActivated = (state > 0);
+        if (sr != null)
+        {
+            sr.sprite = isActivated ? activatedSprite : originalSprite;
+            sr.color = isActivated ? activatedColor : originalColor; // 恢复初始色
+        }
     }
 
     public virtual bool TrySacrifice(IMaskPower mask, PlayerController player)
     {
         if (isActivated) return false;
-
         Activate();
         return true;
     }
@@ -30,13 +46,10 @@ public class Altar : MonoBehaviour
     protected virtual void Activate()
     {
         isActivated = true;
-
-        if (sr != null && activatedSprite != null)
+        if (sr != null)
         {
-            sr.sprite = activatedSprite;
-            sr.color = Color.white; 
+            if (activatedSprite != null) sr.sprite = activatedSprite;
+            sr.color = activatedColor;
         }
-
-        Debug.Log($"{gameObject.name} 祭坛已点亮！");
     }
 }

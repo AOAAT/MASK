@@ -9,13 +9,13 @@ public class MaskItem : MonoBehaviour
 
     private void Awake()
     {
-        // 自动确保物体有 Collider2D，否则 OnMouseDown 不会触发
+      
         if (GetComponent<Collider2D>() == null)
         {
             gameObject.AddComponent<BoxCollider2D>().isTrigger = true;
         }
 
-        // 自动修正显示层级，确保面具在最前（解决你之前的显示问题）
+      
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.sortingOrder = 10;
 
