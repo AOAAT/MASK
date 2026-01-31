@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement; // 必须引用
+using UnityEngine.SceneManagement;
 
 public class Door : MonoBehaviour
 {
     [Header("状态")]
     public bool isOpen = false;
+
+    [Header("视觉配置")]
+    public Sprite closedDoorSprite; 
+    public Sprite openDoorSprite;   
 
     [Header("跳转配置")]
     [Tooltip("填入下一关场景的名称。如果为空，则自动加载 Build Settings 中的下一个场景")]
@@ -15,6 +19,11 @@ public class Door : MonoBehaviour
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+        // 初始状态确保是关门贴图
+        if (sr != null && closedDoorSprite != null)
+        {
+            sr.sprite = closedDoorSprite;
+        }
     }
 
     public void OpenDoor()
@@ -23,8 +32,15 @@ public class Door : MonoBehaviour
 
         isOpen = true;
         Debug.Log("所有的祭坛都被激活了，门已开启！");
-       
-        if (sr != null) sr.color = new Color(0, 1, 0, 0.5f);
+
+        // 1. 切换为开门贴图
+        if (sr != null && openDoorSprite != null)
+        {
+            sr.sprite = openDoorSprite;
+            sr.color = Color.white;
+        }
+
+        // 2. 修改层级使玩家可以穿过
         gameObject.layer = LayerMask.NameToLayer("Default");
     }
 
@@ -35,12 +51,10 @@ public class Door : MonoBehaviour
 
         Debug.Log("检测到玩家进入，准备跳转场景...");
 
-        // 1. 优先尝试按名称跳转
         if (!string.IsNullOrEmpty(nextSceneName))
         {
             SceneManager.LoadScene(nextSceneName);
         }
-        // 2. 如果没填名字，自动跳转到 Build Settings 里的下一个索引
         else
         {
             int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
