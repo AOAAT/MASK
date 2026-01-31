@@ -100,7 +100,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eyeType: 0
   pupil: {fileID: 417290264824773135}
-  eyelid: {fileID: 0}
+  eyeMainSR: {fileID: 6723050502689383821}
+  openEyeSprite: {fileID: 21300000, guid: 4244f42b6ab932d4d8194bdd2c627ab2, type: 3}
+  closedEyeSprite: {fileID: 21300000, guid: 3f146ee884a357342a34545641d50bef, type: 3}
   maxOffset: 0.3
   followSpeed: 5
 --- !u!1 &8158524778026604328
