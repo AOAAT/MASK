@@ -145,4 +145,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maskName: Left
   moveDirection: {x: -1, y: 0}
-  maskIcon: {fileID: 21300000, guid: bf340f9f5727ca94289c6eba3fc2e52d, type: 3}
+  maskIcon: {fileID: 21300000, guid: ac6e2c3f60f53de4f8ef845cfffa7e8b, type: 3}
