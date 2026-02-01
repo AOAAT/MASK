@@ -103,9 +103,9 @@ MonoBehaviour:
   activatedSprite: {fileID: 0}
   activatedColor: {r: 0, g: 1, b: 0, a: 1}
   upIcon: {fileID: 21300000, guid: 6cd0f538949cceb4a98e022c521172a8, type: 3}
-  downIcon: {fileID: 21300000, guid: 6855ee5e173599b498606735af0e3a36, type: 3}
-  leftIcon: {fileID: 21300000, guid: bf340f9f5727ca94289c6eba3fc2e52d, type: 3}
-  rightIcon: {fileID: 21300000, guid: 14d1d777327274641b292040b5864370, type: 3}
+  downIcon: {fileID: 21300000, guid: 1fe81960f2d05de439d02735466eb6df, type: 3}
+  leftIcon: {fileID: 21300000, guid: ac6e2c3f60f53de4f8ef845cfffa7e8b, type: 3}
+  rightIcon: {fileID: 21300000, guid: be6325bc4d2b63443825fe0fcec72a1d, type: 3}
 --- !u!61 &729706689075777667
 BoxCollider2D:
   m_ObjectHideFlags: 0

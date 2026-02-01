@@ -122,7 +122,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.7876923, y: 0.7876923}
+    oldSize: {x: 0.7585185, y: 0.7585185}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -145,4 +145,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maskName: Right
   moveDirection: {x: 1, y: 0}
-  maskIcon: {fileID: 21300000, guid: 14d1d777327274641b292040b5864370, type: 3}
+  maskIcon: {fileID: 21300000, guid: be6325bc4d2b63443825fe0fcec72a1d, type: 3}
