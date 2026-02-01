@@ -44,3 +44,15 @@ TagManager:
   - name: Background
     uniqueID: 2400219049
     locked: 0
+  - name: Environment
+    uniqueID: 82557589
+    locked: 0
+  - name: Obstacles
+    uniqueID: 4082447899
+    locked: 0
+  - name: Entities
+    uniqueID: 720809389
+    locked: 0
+  - name: Gaze
+    uniqueID: 2203403807
+    locked: 0
